@@ -3,22 +3,15 @@
 import FileSystem from "expo-file-system";
 import crypto from "react-native-quick-crypto";
 import {ReadableStream} from "web-streams-polyfill";
+import {Types} from "youtubei.js";
+// @ts-ignore Ignore no type definitions found
 import CustomEvent from "youtubei.js/dist/src/platform/polyfills/node-custom-event.js";
+// @ts-ignore Ignore no type definitions found
 import {ICache} from "youtubei.js/dist/src/types/Cache.js";
+// @ts-ignore Ignore no type definitions found
 import {FetchFunction} from "youtubei.js/dist/src/types/PlatformShim.js";
+// @ts-ignore Ignore no type definitions found
 import {Platform} from "youtubei.js/dist/src/utils/Utils.js";
-
-import evaluate from "./jinterMetro";
-
-// eslint-disable-next-line import/order
-import Innertube from "youtubei.js/dist/src/platform/lib";
-
-// const meta_url = import.meta.url;
-// const is_cjs = !meta_url;
-// const __dirname__ = is_cjs ? __dirname : path.dirname(fileURLToPath(meta_url));
-//
-// const package_json = JSON.parse(readFileSync(path.resolve(__dirname__, is_cjs ? '../package.json' : '../../package.json'), 'utf-8'));
-// const repo_url = package_json.homepage?.split('#')[0];
 
 class Cache implements ICache {
   #persistent_directory: string;
@@ -103,7 +96,7 @@ class Cache implements ICache {
 
 console.log("Correct YTJS");
 Platform.load({
-  runtime: "node",
+  runtime: "react-native",
   info: {
     version: "",
     bugs_url: "",
@@ -117,7 +110,26 @@ Platform.load({
   uuidv4() {
     return crypto.randomUUID();
   },
-  eval: evaluate,
+  eval: async (
+    data: Types.BuildScriptResult,
+    env: Record<string, Types.VMPrimative>,
+  ) => {
+    const properties = [];
+
+    if (env.n) {
+      // @ts-ignore
+      properties.push(`n: exportedVars.nFunction("${env.n}")`);
+    }
+
+    if (env.sig) {
+      // @ts-ignore
+      properties.push(`sig: exportedVars.sigFunction("${env.sig}")`);
+    }
+
+    const code = `${data.output}\nreturn { ${properties.join(", ")} }`;
+
+    return new Function(code)();
+  },
   fetch: fetch as unknown as FetchFunction,
   Request: Request as unknown as typeof globalThis.Request,
   Response: Response as unknown as typeof globalThis.Response,
@@ -129,5 +141,4 @@ Platform.load({
   CustomEvent: CustomEvent,
 });
 
-export * from "youtubei.js/dist/src/platform/lib";
-export default Innertube;
+export * from "youtubei.js";

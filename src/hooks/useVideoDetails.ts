@@ -1,4 +1,5 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from "react";
+// @ts-ignore
 import {InnerTubeClient} from "youtubei.js/dist/src/types";
 
 import {useAppData} from "@/context/AppDataContext";
@@ -25,8 +26,8 @@ export default function useVideoDetails(
 
   const youtube = useYoutubeContext();
   const tvYoutube = useYoutubeTVContext();
-  const videoRef = useRef<YT.VideoInfo>();
-  const videoTVRef = useRef<YTTV.VideoInfo>();
+  const videoRef = useRef<YT.VideoInfo>(undefined);
+  const videoTVRef = useRef<YTTV.VideoInfo>(undefined);
   const [videoInfo, setVideoInfo] = useState<YTVideoInfo>();
   const [watchNextFeed, setWatchNextFeed] = useState<ElementData[]>();
   const [watchNextSections, setWatchNextSections] =
@@ -108,18 +109,20 @@ export default function useVideoDetails(
   //   }
   // }, [appSettings.trackingEnabled]);
 
-  const httpVideoURL = useMemo(() => {
+  const [httpVideoURL, setHttpVideoURL] = useState<string>();
+
+  useEffect(() => {
     if (!youtube?.actions.session.player) {
-      return undefined;
+      setHttpVideoURL(undefined);
+      return;
     }
-    try {
-      return videoInfo?.best_format?.originalFormat?.decipher(
-        youtube.actions.session.player,
-      );
-    } catch (e) {
-      LOGGER.debug("Error while decrypting best format: ", e);
-    }
-    return undefined;
+    videoInfo?.best_format?.originalFormat
+      ?.decipher(youtube.actions.session.player)
+      .then(setHttpVideoURL)
+      .catch(e => {
+        LOGGER.debug("Error while decrypting best format: ", e);
+        setHttpVideoURL(undefined);
+      });
   }, [videoInfo, youtube]);
 
   LOGGER.debug("Video: ", httpVideoURL);
