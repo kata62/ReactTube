@@ -141,6 +141,7 @@ function VideoMenuItem({title, onPress}: ItemProps) {
   const [focus, setFocus] = useState(false);
   return (
     <Pressable
+      key={title}
       onFocus={() => setFocus(true)}
       onBlur={() => setFocus(false)}
       onPress={onPress}>
