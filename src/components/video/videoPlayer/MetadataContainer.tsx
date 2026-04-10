@@ -48,13 +48,13 @@ export default function MetadataContainer({
           />
           <MetadataButton
             iconType={"antdesign"}
-            iconName={"like2"}
+            iconName={"like"}
             onPress={metadata.onLike}
             active={metadata.liked}
           />
           <MetadataButton
             iconType={"antdesign"}
-            iconName={"dislike2"}
+            iconName={"dislike"}
             onPress={metadata.onDislike}
             active={metadata.disliked}
           />
@@ -65,7 +65,7 @@ export default function MetadataContainer({
           />
           <MetadataButton
             iconType={"antdesign"}
-            iconName={"stepbackward"}
+            iconName={"step-backward"}
             onPress={onJumpToStart}
           />
           <MetadataButton

@@ -89,9 +89,9 @@ function VideoMenuContent({data: orgData}: {data: ElementData}) {
           }}
         />
       ) : null}
-      {contextMenu.map(menu => (
+      {contextMenu.map((menu, index) => (
         <VideoMenuItem
-          key={menu.text}
+          key={menu.text + index}
           title={menu.text}
           onPress={() => {
             if (menu.navEndpoint && menu.type !== "addToPlaylist") {
@@ -141,10 +141,12 @@ function VideoMenuItem({title, onPress}: ItemProps) {
   const [focus, setFocus] = useState(false);
   return (
     <Pressable
+      key={title}
       onFocus={() => setFocus(true)}
       onBlur={() => setFocus(false)}
       onPress={onPress}>
       <ListItem
+        key={title}
         containerStyle={[
           styles.listItemContainer,
           {
